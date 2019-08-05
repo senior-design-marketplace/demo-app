@@ -16,7 +16,11 @@ class App extends React.Component<{}, AuthState> {
 
     componentWillMount() {
         const john = new Student("john123", "john123", "john@123");
-        john.authenticate();
+        try {
+            john.authenticate();
+        } catch (e) {
+            console.log(e);
+        }
 
         this.attemptAuth(john);
     }
