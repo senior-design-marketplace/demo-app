@@ -1,36 +1,40 @@
 import React from 'react';
 import User from '../model/user/User';
-import Student from '../model/user/impl/Student';
+import { withAuthenticator } from 'aws-amplify-react';
+import signUpConfig from './signUpConfig';
 
-type AuthState = {
-    isAuthenticated: boolean
+type State = {
+    searching: boolean,
+    favoriteDog: string | undefined
 }
 
-class App extends React.Component<{}, AuthState> {
+class App extends React.Component<{}, State> {
 
-    attemptAuth(user: User) {
-        this.setState({
-            isAuthenticated: user.isAuthenticated
-        });
+    //init state
+    state = {
+        searching: true,
+        favoriteDog: undefined
     }
 
-    componentWillMount() {
-        const john = new Student("john123", "john123", "john@123");
-        try {
-            john.authenticate();
-        } catch (e) {
-            console.log(e);
-        }
-
-        this.attemptAuth(john);
+    async componentWillMount() {
+        const user = new User("testUsername", "testPassword123");
+        user.authenticate();
+        
+        const dogger = await user.getFavoriteDog();
+        this.setState({
+            searching: false,
+            favoriteDog: dogger
+        })
     }
 
     render() {
-        if (this.state.isAuthenticated) {
-            return <div>User is authed, woohoo!</div>
+        if (this.state.searching) {
+            return <div>Searching for favorite dog...</div>
+        } else {
+            return <div>Favorite dog is { this.state.favoriteDog }</div>
         }
-        return <div>User isn't authed :(</div>
     }
 }
 
-export default App;
+//we should customize this further so that non-authenticated users can see it too
+export default withAuthenticator(App, { signUpConfig });

@@ -1,28 +1,23 @@
-import AuthenticationError from "../error/impl/authenticationException";
+import { Auth, API } from 'aws-amplify';
+import { CognitoUser } from "@aws-amplify/auth";
 
-abstract class User {
+class User {
 
-    isAuthenticated: boolean = false;
-    token: string | undefined = undefined;
+    constructor(private readonly username: string,
+                private readonly password: string) {}
 
-    constructor(public readonly username: string, public readonly password: string, public readonly email: string) {
+    public authenticate(): Promise<CognitoUser> {
+        return Auth.signIn(this.username, this.password);
     }
 
-    /**
-     * Attempt to authenticate a given user.  If authentication fails, throw an AuthenticationException
-     */
-    public authenticate(): void {
-        this.token = this._authenticate();
-
-        //simulate sometimes-erroneous login via a coin toss
-        if ((Math.floor(Math.random() * 2) === 0)) {
-            throw new AuthenticationError('Woops!  Something went wrong :(');
+    public async getFavoriteDog(): Promise<string> {        
+        try {
+            return await API.get('APIGateway', '/topsecret', undefined);
+        } catch (e) {
+            console.log(e);
+            return Promise.resolve('No dog found');
         }
-
-        this.isAuthenticated = true;
     }
-
-    protected abstract _authenticate(): string;
 }
 
 export default User;
