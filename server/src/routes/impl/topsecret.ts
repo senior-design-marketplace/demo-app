@@ -1,21 +1,34 @@
 import { Request, Response } from 'express';
 import { Controller, Middleware, Get, Post, Put, Delete, ClassMiddleware } from '@overnightjs/core';
 import { Logger } from '@overnightjs/logger';
+import { DocumentClient } from 'aws-sdk/clients/dynamodb';
+import { identityTranslation } from '../middlewares';
 import cors from 'cors';
+import util from 'util';
 
-//entire API will need CORS, we might want to put this
-//middleware on a top level conroller and extend from it
-@ClassMiddleware(cors())
+@ClassMiddleware([cors(), identityTranslation])
 @Controller('topsecret')
 export default class TopSecretController {
 
-    @Get()
-    private getFavoriteDog(req: Request, res: Response) {
-        Logger.Info(req);
+    constructor(private readonly documentClient: DocumentClient) {}
 
-        //make a call over to Dynamo in the real deal
-        return res.status(200).json({
-            message: 'Get was called!'
-        });
+    @Get()
+    public async getFavoriteDog(req: Request, res: Response) {
+        if (!req.headers.cognitoIdentityId) {
+            return res.status(400);
+        }
+
+        try {
+            const dog = await this.documentClient.get({
+                TableName: 'senior-design-marketplace-demo',
+                Key: {
+                    username: req.headers.cognitoIdentityId
+                }
+            }).promise()
+
+            return res.status(200).json(dog);
+        } catch (e) {
+            return res.status(500);
+        }
     }
 }

@@ -35,7 +35,7 @@
         "identity": {
             "cognitoIdentityPoolId": "",
             "accountId": "",
-            "cognitoIdentityId": "",
+            "cognitoIdentityId": "us-east-1:e0c24766-fd79-400b-9ddb-b390ab5e69e1",
             "caller": "",
             "apiKey": "",
             "sourceIp": "11.111.111.111",
