@@ -15,7 +15,7 @@ export default class TopSecretController {
     @Get()
     public async getFavoriteDog(req: Request, res: Response) {
         if (!req.headers.cognitoIdentityId) {
-            return res.status(400);
+            return res.sendStatus(400);
         }
 
         try {
@@ -28,7 +28,7 @@ export default class TopSecretController {
 
             return res.status(200).json(dog);
         } catch (e) {
-            return res.status(500);
+            return res.sendStatus(500);
         }
     }
 }

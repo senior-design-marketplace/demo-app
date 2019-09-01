@@ -16,7 +16,7 @@
         }
     },
     "include": [
-        "src/**/*"
+        "src/**/*", "test/routes/impl/topsecret.test.js"
     ],
     "exclude": [
         "node_modules"
